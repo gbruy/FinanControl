@@ -1,28 +1,92 @@
 {% extends "base.html" %}
-
 {% block content %}
 <h2>Nova Transação</h2>
 <form method="POST">
     {{ form.hidden_tag() }}
-    <div>
-        {{ form.tipo.label }}<br>
-        {{ form.tipo }}
+    <div class="mb-3">
+        {{ form.tipo.label(class="form-label") }}<br>
+        {{ form.tipo(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.categoria.label(class="form-label") }}<br>
+        {{ form.categoria(class="form-control", id="categoria") }}
+        <!-- Botão para abrir o modal -->
+        <button type="button" class="btn btn-sm btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#novaCategoriaModal">
+            + Nova Categoria
+        </button>
+    </div>
+    <div class="mb-3">
+        {{ form.valor.label(class="form-label") }}<br>
+        {{ form.valor(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.data.label(class="form-label") }}<br>
+        {{ form.data(class="form-control") }}
     </div>
     <div>
-        {{ form.categoria.label }}<br>
-        {{ form.categoria(size=32) }}
-    </div>
-    <div>
-        {{ form.valor.label }}<br>
-        {{ form.valor }}
-    </div>
-    <div>
-        {{ form.data.label }}<br>
-        {{ form.data }}
-    </div>
-    <div>
-        {{ form.submit() }}
+        {{ form.submit(class="btn btn-success") }}
     </div>
 </form>
-<p><a href="{{ url_for('main.dashboard') }}">Voltar ao Dashboard</a></p>
+
+<!-- Modal para Criar Nova Categoria -->
+<div class="modal fade" id="novaCategoriaModal" tabindex="-1" aria-labelledby="novaCategoriaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="novaCategoriaModalLabel">Criar Nova Categoria</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="novaCategoriaForm">
+                    <div class="mb-3">
+                        <label for="nomeCategoria" class="form-label">Nome da Categoria</label>
+                        <input type="text" class="form-control" id="nomeCategoria" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para enviar a nova categoria via AJAX -->
+<script>
+    document.getElementById('novaCategoriaForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Impede o envio padrão do formulário
+    
+        // Obtém o nome da categoria
+        const nomeCategoria = document.getElementById('nomeCategoria').value;
+    
+        // Envia os dados via AJAX
+        fetch('/criar_categoria', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ nome: nomeCategoria })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Fecha o modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('novaCategoriaModal'));
+                modal.hide();
+    
+                // Adiciona a nova categoria ao campo de seleção
+                const selectCategoria = document.querySelector('#categoria'); // Seleciona o campo <select>
+                const novaOpcao = new Option(nomeCategoria, data.categoria_id, true, true); // Cria uma nova opção
+                selectCategoria.add(novaOpcao); // Adiciona a nova opção ao campo <select>
+    
+                alert('Categoria criada com sucesso!');
+            } else {
+                alert('Erro ao criar categoria.');
+            }
+        })
+        .catch(error => console.error('Erro:', error));
+    });
+</script>
+
+<p>
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Voltar ao Dashboard</a>
+</p>
 {% endblock %}

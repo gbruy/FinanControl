@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, jsonify, request
 from flask_login import login_user, logout_user, current_user, login_required 
-from app.models import Usuario , Transacao
+from app.models import Usuario , Transacao, Categoria
 from app.forms import RegisterForm, LoginForm , TransactionForm
 from app import db
 from datetime import datetime
@@ -41,6 +41,7 @@ def login():
         if usuario and usuario.verificar_senha(form.senha.data):
             login_user(usuario)
             flash('Login Realizado com Sucesso !' , 'success')
+            return redirect(url_for('main.dashboard'))
         else:
             flash('E-mail ou senha invalidos', 'danger')
     return render_template('login.html', form=form)
@@ -76,7 +77,17 @@ def nova_transacao():
 @login_required
 def dashboard():
     transacoes = Transacao.query.filter_by(usuario_id=current_user.id).order_by(Transacao.data.desc())
-    return render_template('dashboard.html', usuario = current_user, transacoes=transacoes)
+
+    saldo_total = sum(t.valor if t.tipo =="Receita" else -t.valor for t in transacoes)
+
+    total_receitas = sum(t.valor for t in transacoes if t.tipo=="Receita")
+    total_despesas = sum(t.valor for t in transacoes if t.tipo=="Despesa")
+    return render_template('dashboard.html', 
+                           usuario = current_user, 
+                           transacoes=transacoes,
+                           saldo_total = saldo_total,
+                           total_despesas=total_despesas,
+                           total_receitas=total_receitas)
 
 
 @bp.route('/relatorios', endpoint = 'relatorios')
@@ -95,6 +106,22 @@ def relatorios():
         total_receitas = total_receitas,
         total_despesas = total_despesas
     )
+
+@bp.route('/criar_categoria', methods=['POST'])
+@login_required
+def criar_categoria():
+    #obtem os dados enviados via AJAX
+    data = request.get_json()
+    nome_categoria = data.get('nome')
+
+    if nome_categoria:
+        nova_categoria = Categoria(nome=nome_categoria, usuario_id =current_user.id)
+        db.session.add(nova_categoria)
+        db.session.commit()
+
+        return jsonify({'success': True, 'categoria_id': nova_categoria.id})
+    else:
+        return jsonify({'success': False, 'message': 'Nome da Categoria Invalido'}), 400
 
 def init_app(app):
     app.register_blueprint(bp)

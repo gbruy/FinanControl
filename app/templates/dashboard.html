@@ -1,32 +1,82 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Bem-vindo, {{ usuario.nome }}!</h2>
-<p>Esta é sua página inicial.</p>
+<div class="d-flex">
+    <!-- Menu Lateral -->
+    <div class="bg-light border-end p-3" style="width: 250px;">
+        <h4>Menu</h4>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a href="{{ url_for('main.dashboard') }}" class="nav-link text-dark">
+                    <i class="fas fa-home me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('main.nova_transacao') }}" class="nav-link text-dark">Nova Transação</a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('main.relatorios') }}" class="nav-link text-dark">Relatórios</a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('main.logout') }}" class="nav-link text-danger">Sair</a>
+            </li>
+        </ul>
+    </div>
 
-<h3>Suas Transações</h3>
-<table border="1">
-    <thead>
-        <tr>
-            <th>Tipo</th>
-            <th>Categoria</th>
-            <th>Valor</th>
-            <th>Data</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for transacao in transacoes %}
-        <tr>
-            <td>{{ transacao.tipo }}</td>
-            <td>{{ transacao.categoria }}</td>
-            <td>{{ transacao.valor }}</td>
-            <td>{{ transacao.data.strftime('%d/%m/%Y') }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <!-- Conteúdo Principal -->
+    <div class="flex-grow-1 p-4">
+        <h2 class="text-center mb-4">Bem-vindo, {{ usuario.nome }}!</h2>
 
-<p><a href="{{ url_for('main.nova_transacao') }}">Adicionar Nova Transação</a></p>
-<p><a href="{{ url_for('main.logout') }}">Sair</a></p>
-<p><a href="{{ url_for('main.relatorios')}}">Relatorios</a></p>
+        <!-- Painéis de Relatórios Rápidos -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Saldo Total</h5>
+                        <p class="card-text">R$ {{ "%.2f"|format(saldo_total) }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Receitas</h5>
+                        <p class="card-text">R$ {{ "%.2f"|format(total_receitas) }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-danger text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Despesas</h5>
+                        <p class="card-text">R$ {{ "%.2f"|format(total_despesas) }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Transações -->
+        <h3>Histórico de Transações</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Categoria</th>
+                    <th>Valor</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transacao in transacoes %}
+                <tr>
+                    <td>{{ transacao.tipo }}</td>
+                    <td>{{ transacao.categoria }}</td>
+                    <td>R$ {{ "%.2f"|format(transacao.valor) }}</td>
+                    <td>{{ transacao.data.strftime('%d/%m/%Y') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

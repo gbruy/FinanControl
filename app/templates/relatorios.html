@@ -1,47 +1,58 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Relatórios Financeiros</h2>
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2 class="text-center">Relatórios Financeiros</h2>
 
-<h3>Resumo Geral</h3>
-<ul>
-    <li><strong>Saldo Total:</strong> {{ "%.2f"|format(saldo_total) }}</li>
-    <li><strong>Total de Receitas:</strong> {{ "%.2f"|format(total_receitas) }}</li>
-    <li><strong>Total de Despesas:</strong> {{ "%.2f"|format(total_despesas) }}</li>
-</ul>
+        <h3 class="mt-4">Resumo Geral</h3>
+        <ul class="list-group">
+            <li class="list-group-item"><strong>Saldo Total:</strong> R$ {{ "%.2f"|format(saldo_total) }}</li>
+            <li class="list-group-item"><strong>Total de Receitas:</strong> R$ {{ "%.2f"|format(total_receitas) }}</li>
+            <li class="list-group-item"><strong>Total de Despesas:</strong> R$ {{ "%.2f"|format(total_despesas) }}</li>
+        </ul>
 
-<h3>Gráfico de Gastos</h3>
-<div style="width: 50%; margin-left: 0;">
-    <canvas id="chart" ></canvas>
+        <h3 class="mt-4">Gráfico de Gastos</h3>
+        <div class="container mt-4">
+            <div class="row">
+                <div class="col-md-8 offset-md-2 bg-light border rounded shadow p-4">
+                    <h3 class="text-center mb-4">Gráfico de Gastos</h3>
+                    <canvas id="chart" class="w-100 h-auto"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="mt-4">Histórico de Transações</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Categoria</th>
+                    <th>Valor</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transacao in transacoes %}
+                <tr>
+                    <td>{{ transacao.tipo }}</td>
+                    <td>{{ transacao.categoria }}</td>
+                    <td>R$ {{ "%.2f"|format(transacao.valor) }}</td>
+                    <td>{{ transacao.data.strftime('%d/%m/%Y') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="text-center">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Voltar ao Dashboard</a>
+        </div>
+    </div>
 </div>
-<h3>Histórico de Transações</h3>
-<table border="1">
-    <thead>
-        <tr>
-            <th>Tipo</th>
-            <th>Categoria</th>
-            <th>Valor</th>
-            <th>Data</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for transacao in transacoes %}
-        <tr>
-            <td>{{ transacao.tipo }}</td>
-            <td>{{ transacao.categoria }}</td>
-            <td>{{ "%.2f"|format(transacao.valor) }}</td>
-            <td>{{ transacao.data.strftime('%d/%m/%Y') }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<p><a href="{{ url_for('main.dashboard') }}">Voltar ao Dashboard</a></p>
 
 <!-- Script para o gráfico -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Dados para o gráfico
     const ctx = document.getElementById('chart').getContext('2d');
     const chart = new Chart(ctx, {
         type: 'pie',
@@ -56,8 +67,6 @@
             }]
         },
         options: {
-            responsive:false,
-            maintainAaspectRatio:false,
             scales: {
                 y: {
                     beginAtZero: true
