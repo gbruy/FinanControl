@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Relatórios Financeiros</h2>
+
+<h3>Resumo Geral</h3>
+<ul>
+    <li><strong>Saldo Total:</strong> {{ "%.2f"|format(saldo_total) }}</li>
+    <li><strong>Total de Receitas:</strong> {{ "%.2f"|format(total_receitas) }}</li>
+    <li><strong>Total de Despesas:</strong> {{ "%.2f"|format(total_despesas) }}</li>
+</ul>
+
+<h3>Gráfico de Gastos</h3>
+<div style="width: 50%; margin-left: 0;">
+    <canvas id="chart" ></canvas>
+</div>
+<h3>Histórico de Transações</h3>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Tipo</th>
+            <th>Categoria</th>
+            <th>Valor</th>
+            <th>Data</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transacao in transacoes %}
+        <tr>
+            <td>{{ transacao.tipo }}</td>
+            <td>{{ transacao.categoria }}</td>
+            <td>{{ "%.2f"|format(transacao.valor) }}</td>
+            <td>{{ transacao.data.strftime('%d/%m/%Y') }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p><a href="{{ url_for('main.dashboard') }}">Voltar ao Dashboard</a></p>
+
+<!-- Script para o gráfico -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Dados para o gráfico
+    const ctx = document.getElementById('chart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Receitas', 'Despesas'],
+            datasets: [{
+                label: 'Valores (R$)',
+                data: [{{ total_receitas }}, {{ total_despesas }}],
+                backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+                borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive:false,
+            maintainAaspectRatio:false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

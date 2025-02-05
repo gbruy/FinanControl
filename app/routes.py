@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required 
-from app.models import Usuario
-from app.forms import RegisterForm, LoginForm
+from app.models import Usuario , Transacao
+from app.forms import RegisterForm, LoginForm , TransactionForm
 from app import db
+from datetime import datetime
 
 
     # Cria um Blueprint para as rotas
@@ -51,11 +52,49 @@ def logout():
     flash('Voce foi deslogado com sucesso', 'info')
     return redirect(url_for('main.login'))
 
-@bp.route('/dashboard')
-@login_required  # Protege a rota para usuários logados
-def dashboard():
-    return render_template('dashboard.html', usuario=current_user)
 
+
+@bp.route('/nova_transacao', methods = ['GET', 'POST'])
+@login_required
+def nova_transacao():
+    form = TransactionForm()
+    if form.validate_on_submit():
+        nova_transacao = Transacao(
+            usuario_id = current_user.id,
+            tipo = form.tipo.data,
+            categoria = form.categoria.data,
+            valor = form.valor.data,
+            data = form.data.data
+        )
+        db.session.add(nova_transacao)
+        db.session.commit()
+        flash('Transação Adicionada com sucesso', 'success')
+        return redirect(url_for('main.dashboard'))
+    return render_template ('nova_transacao.html', form=form)
+
+@bp.route('/dashboard')
+@login_required
+def dashboard():
+    transacoes = Transacao.query.filter_by(usuario_id=current_user.id).order_by(Transacao.data.desc())
+    return render_template('dashboard.html', usuario = current_user, transacoes=transacoes)
+
+
+@bp.route('/relatorios', endpoint = 'relatorios')
+@login_required
+def relatorios():
+    transacoes = Transacao.query.filter_by(usuario_id=current_user.id).order_by(Transacao.data.desc())
+    saldo_total = sum(t.valor if t.tipo == 'Receitas' else -t.valor for t in transacoes)
+
+    total_receitas = sum(t.valor for t in transacoes if t.tipo == "Receita")
+    total_despesas = sum(t.valor for t in transacoes if t.tipo =="Despesa")
+
+    return render_template(
+        'relatorios.html',
+        transacoes=transacoes,
+        saldo_total=saldo_total,
+        total_receitas = total_receitas,
+        total_despesas = total_despesas
+    )
 
 def init_app(app):
     app.register_blueprint(bp)

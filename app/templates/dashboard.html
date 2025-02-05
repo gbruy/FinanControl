@@ -3,5 +3,30 @@
 {% block content %}
 <h2>Bem-vindo, {{ usuario.nome }}!</h2>
 <p>Esta é sua página inicial.</p>
-<a href="{{ url_for('main.logout') }}">Sair</a>
+
+<h3>Suas Transações</h3>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Tipo</th>
+            <th>Categoria</th>
+            <th>Valor</th>
+            <th>Data</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transacao in transacoes %}
+        <tr>
+            <td>{{ transacao.tipo }}</td>
+            <td>{{ transacao.categoria }}</td>
+            <td>{{ transacao.valor }}</td>
+            <td>{{ transacao.data.strftime('%d/%m/%Y') }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p><a href="{{ url_for('main.nova_transacao') }}">Adicionar Nova Transação</a></p>
+<p><a href="{{ url_for('main.logout') }}">Sair</a></p>
+<p><a href="{{ url_for('main.relatorios')}}">Relatorios</a></p>
 {% endblock %}

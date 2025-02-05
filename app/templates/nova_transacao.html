@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Nova Transação</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div>
+        {{ form.tipo.label }}<br>
+        {{ form.tipo }}
+    </div>
+    <div>
+        {{ form.categoria.label }}<br>
+        {{ form.categoria(size=32) }}
+    </div>
+    <div>
+        {{ form.valor.label }}<br>
+        {{ form.valor }}
+    </div>
+    <div>
+        {{ form.data.label }}<br>
+        {{ form.data }}
+    </div>
+    <div>
+        {{ form.submit() }}
+    </div>
+</form>
+<p><a href="{{ url_for('main.dashboard') }}">Voltar ao Dashboard</a></p>
+{% endblock %}

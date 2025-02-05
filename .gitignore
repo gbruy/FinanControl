@@ -1,6 +1,13 @@
+# Ambiente virtual
 venv/
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-.env
+
+# Dependências
+*.db
+*.sqlite3
+
+# IDE e arquivos temporários
+.vscode/
+.idea/
+*.log
