@@ -122,6 +122,32 @@ def criar_categoria():
         return jsonify({'success': True, 'categoria_id': nova_categoria.id})
     else:
         return jsonify({'success': False, 'message': 'Nome da Categoria Invalido'}), 400
+    
+@bp.route('/editar_categoria/<int:categoria_id>', methods = ['POST'])
+@login_required
+def editar_categoria(categoria_id):
+    #Obtem os dados via AJAX
+    data = request.get_json()
+    novo_nome = data.get('nome')
+
+    if novo_nome:
+        #busca a categoria pelo ID
+        categoria = Categoria.query.filter_by(id=categoria_id, usuario_id = current_user.id).first()
+        if categoria:
+            categoria.nome = novo_nome
+            db.session.commit()
+            return jsonify({'success': True})
+    return jsonify({'success' : False , 'message': 'Categoria não encontrada'}), 400
+
+@bp.route('/excluir_categoria/<int:categoria_id>', methods = ['DELETE'])
+@login_required
+def excluir_categoria(categoria_id):
+    categoria = Categoria.query.filter_by(id = categoria_id, usuario_id = current_user.id).first()
+    if categoria:
+        db.session.delete(categoria)
+        db.session.commit()
+        return jsonify({'success': True})
+    return jsonify ({'success': False, 'message': 'Categoria não encontrara'}), 400
 
 def init_app(app):
     app.register_blueprint(bp)

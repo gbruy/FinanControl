@@ -14,6 +14,12 @@
         <button type="button" class="btn btn-sm btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#novaCategoriaModal">
             + Nova Categoria
         </button>
+        <button type="button" class= "btn btn-sm btn-warning mt-2" id="editarCategoriaBtn" disabled>
+            Editar
+        </button>
+        <button type="button" class= "btn btn-sm btn-danger mt-2" id="excluirCategoriaBtn" disabled>
+            Excluir
+        </button>  
     </div>
     <div class="mb-3">
         {{ form.valor.label(class="form-label") }}<br>
@@ -43,6 +49,26 @@
                         <input type="text" class="form-control" id="nomeCategoria" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Salvar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal para Editar Categoria -->
+<div class="modal fade" id="editarCategoriaModal" tabindex="-1" aria-labelledby="editarCategoriaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editarCategoriaModalLabel">Editar Categoria</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editarCategoriaForm">
+                    <div class="mb-3">
+                        <label for="novoNomeCategoria" class="form-label">Novo Nome da Categoria</label>
+                        <input type="text" class="form-control" id="novoNomeCategoria" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
                 </form>
             </div>
         </div>
@@ -85,6 +111,79 @@
         .catch(error => console.error('Erro:', error));
     });
 </script>
+<!-- Script para manipular as categorias -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const selectCategoria = document.getElementById('categoria');
+        const editarCategoriaBtn = document.getElementById('editarCategoriaBtn');
+        const excluirCategoriaBtn = document.getElementById('excluirCategoriaBtn');
+    
+        // Habilita/desabilita os botões com base na seleção
+        selectCategoria.addEventListener('change', function () {
+            if (selectCategoria.value) {
+                editarCategoriaBtn.disabled = false;
+                excluirCategoriaBtn.disabled = false;
+            } else {
+                editarCategoriaBtn.disabled = true;
+                excluirCategoriaBtn.disabled = true;
+            }
+        });
+    
+        // Função para editar a categoria
+        editarCategoriaBtn.addEventListener('click', function () {
+            const categoriaId = selectCategoria.value;
+            const modal = new bootstrap.Modal(document.getElementById('editarCategoriaModal'));
+            modal.show();
+    
+            // Preenche o formulário de edição com o nome atual da categoria
+            const nomeCategoria = selectCategoria.options[selectCategoria.selectedIndex].text;
+            document.getElementById('novoNomeCategoria').value = nomeCategoria;
+    
+            // Envia os dados via AJAX ao salvar
+            document.getElementById('editarCategoriaForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+                const novoNome = document.getElementById('novoNomeCategoria').value;
+    
+                fetch(`/editar_categoria/${categoriaId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ nome: novoNome }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Categoria editada com sucesso!');
+                        location.reload(); // Recarrega a página para atualizar a lista de categorias
+                    } else {
+                        alert('Erro ao editar categoria.');
+                    }
+                });
+            });
+        });
+    
+        // Função para excluir a categoria
+        excluirCategoriaBtn.addEventListener('click', function () {
+            const categoriaId = selectCategoria.value;
+    
+            if (confirm('Tem certeza de que deseja excluir esta categoria?')) {
+                fetch(`/excluir_categoria/${categoriaId}`, {
+                    method: 'DELETE',
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Categoria excluída com sucesso!');
+                        location.reload(); // Recarrega a página para atualizar a lista de categorias
+                    } else {
+                        alert('Erro ao excluir categoria.');
+                    }
+                });
+            }
+        });
+    });
+    </script>
 
 <p>
     <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Voltar ao Dashboard</a>
