@@ -75,42 +75,7 @@
     </div>
 </div>
 
-<!-- Script para enviar a nova categoria via AJAX -->
-<script>
-    document.getElementById('novaCategoriaForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Impede o envio padrão do formulário
-    
-        // Obtém o nome da categoria
-        const nomeCategoria = document.getElementById('nomeCategoria').value;
-    
-        // Envia os dados via AJAX
-        fetch('/criar_categoria', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ nome: nomeCategoria })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Fecha o modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('novaCategoriaModal'));
-                modal.hide();
-    
-                // Adiciona a nova categoria ao campo de seleção
-                const selectCategoria = document.querySelector('#categoria'); // Seleciona o campo <select>
-                const novaOpcao = new Option(nomeCategoria, data.categoria_id, true, true); // Cria uma nova opção
-                selectCategoria.add(novaOpcao); // Adiciona a nova opção ao campo <select>
-    
-                alert('Categoria criada com sucesso!');
-            } else {
-                alert('Erro ao criar categoria.');
-            }
-        })
-        .catch(error => console.error('Erro:', error));
-    });
-</script>
+
 <!-- Script para manipular as categorias -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {

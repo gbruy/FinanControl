@@ -1,28 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finan Control</title>
-
+    <title>{% block title %}FinanControl{% endblock %}</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Seu CSS personalizado -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">]
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Ícones do Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Estilos Personalizados -->
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    <!-- Animate.css -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
 </head>
 <body>
-    <header class="bg-primary text-white text-center py-3">
-        <h1>Finan Control</h1>
+    <!-- Cabeçalho -->
+    <header class="bg-primary text-white p-3 d-flex justify-content-between align-items-center">
+        <button id="menuToggle" class="btn btn-light">
+            <i class="bi bi-list"></i> <!-- Ícone de menu -->
+        </button>
+        <h4 class="mb-0 text-center flex-grow-1">FinanControl</h4>
     </header>
 
-    <main class="container mt-4">
-        {% block content %}{% endblock %}
-    </main>
+    <!-- Menu de Navegação (inicialmente oculto em telas pequenas) -->
+    
+    <nav id="sidebarMenu" class="bg-light p-3 position-absolute collapsed">
+        <ul class="list-unstyled">
+            <li><a href="{{ url_for('main.dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+            <li><a href="{{ url_for('main.nova_transacao') }}" class="text-decoration-none">Nova Transação</a></li>
+            <li><a href="{{ url_for('main.logout') }}" class="text-decoration-none">Sair</a></li>
+        </ul>
+    </nav>
+    
 
-    <!-- Bootstrap JS e dependências -->
+    <!-- Conteúdo Principal -->
+    <div class="container mt-4">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 </body>
 </html>
