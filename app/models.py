@@ -22,7 +22,7 @@ class Usuario(UserMixin, db.Model):
 
 
 class Transacao(db.Model):
-    __tablename='transacoes'
+    __tablename__ = 'transacao'
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     tipo = db.Column(db.String(20), nullable=False)  # 'Receita' ou 'Despesa'
@@ -31,9 +31,10 @@ class Transacao(db.Model):
     data = db.Column(db.Date, nullable=False)
 
     #Relacionamento
-    categoria = db.relationship('Categoria', backref= 'transacoes')
+    categoria = db.relationship('Categoria', backref= 'transacao')
 
 class Categoria (db.Model):
+    __tablename__ = 'categoria'
     id =db.Column(db.Integer, primary_key = True)
     nome = db.Column(db.String(50), nullable = False)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable = False)

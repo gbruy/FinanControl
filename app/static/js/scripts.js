@@ -112,3 +112,93 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     });
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Obter os dados dos atributos data-*
+        const chartDataElement = document.getElementById('chartData');
+        let meses, valoresMensais, categoriasReceitas, valoresReceitas;
+    
+        try {
+            meses = JSON.parse(chartDataElement.getAttribute('data-meses') || '[]');
+            valoresMensais = JSON.parse(chartDataElement.getAttribute('data-valores-mensais') || '[]');
+            categoriasReceitas = JSON.parse(chartDataElement.getAttribute('data-categorias-receitas') || '[]');
+            valoresReceitas = JSON.parse(chartDataElement.getAttribute('data-valores-receitas') || '[]');
+        } catch (error) {
+            console.error("Erro ao analisar os dados JSON:", error);
+            console.log("Dados brutos recebidos:");
+            console.log({
+                meses: chartDataElement.getAttribute('data-meses'),
+                valoresMensais: chartDataElement.getAttribute('data-valores-mensais'),
+                categoriasReceitas: chartDataElement.getAttribute('data-categorias-receitas'),
+                valoresReceitas: chartDataElement.getAttribute('data-valores-receitas')
+            });
+            return;
+        }
+    
+        // Logs temporários
+        console.log("Meses:", meses);
+        console.log("Valores Mensais:", valoresMensais);
+        console.log("Categorias Receitas:", categoriasReceitas);
+        console.log("Valores Receitas:", valoresReceitas);
+    
+        // Verificar se há dados suficientes para criar os gráficos
+        if (meses.length > 0 && valoresMensais.length > 0) {
+            // Gráfico de Barras (Histórico Mensal)
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            const barChart = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: meses,
+                    datasets: [{
+                        label: 'Compras',
+                        data: valoresMensais,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+    
+            console.log("Gráfico de barras criado com sucesso!");
+        } else {
+            console.warn("Sem dados suficientes para o gráfico de barras.");
+        }
+    
+        if (categoriasReceitas.length > 0 && valoresReceitas.length > 0) {
+            // Gráfico de Pizza (Distribuição de Receitas)
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+            const pieChart = new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: categoriasReceitas,
+                    datasets: [{
+                        label: 'Receitas',
+                        data: valoresReceitas,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(255, 206, 86, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                }
+            });
+    
+            console.log("Gráfico de pizza criado com sucesso!");
+        } else {
+            console.warn("Sem dados suficientes para o gráfico de pizza.");
+        }
+    });

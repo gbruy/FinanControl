@@ -24,13 +24,7 @@ class LoginForm(FlaskForm):
 
 class TransactionForm(FlaskForm):
     tipo = SelectField('Tipo', choices = [('Receita', 'Receita'), ('Despesa', 'Despesa')], validators =[DataRequired()] )
-    categoria = QuerySelectField(
-        'Categoria',
-        query_factory=get_categorias,
-        get_label='nome',
-        allow_blank=True,
-        validators=[DataRequired()]
-    )
+    categoria = QuerySelectField('Categoria', query_factory=lambda: Categoria.query.filter_by(usuario_id=current_user.id), get_label='nome', allow_blank=False)
     valor = FloatField('Valor', validators=[DataRequired()])
     data = DateField('Data', format='%Y-%m-%d', validators=[DataRequired()])
     submit = SubmitField('Salvar')

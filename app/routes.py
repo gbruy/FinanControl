@@ -4,6 +4,7 @@ from app.models import Usuario , Transacao, Categoria
 from app.forms import RegisterForm, LoginForm , TransactionForm
 from app import db
 from datetime import datetime
+from app.graficos import gerar_grafico_despesas_mensais, gerar_grafico_receitas_por_categoria
 
 
     # Cria um Blueprint para as rotas
@@ -60,6 +61,11 @@ def logout():
 def nova_transacao():
     form = TransactionForm()
     if form.validate_on_submit():
+        # Obter o ID da categoria selecionada
+        categoria_selecionada = form.categoria.data
+        categoria_id = categoria_selecionada.id if categoria_selecionada else None
+
+        #Criar a nova transação
         nova_transacao = Transacao(
             usuario_id = current_user.id,
             tipo = form.tipo.data,
@@ -76,35 +82,26 @@ def nova_transacao():
 @bp.route('/dashboard')
 @login_required
 def dashboard():
-    transacoes = Transacao.query.filter_by(usuario_id=current_user.id).order_by(Transacao.data.desc())
+    # Obter transações do usuário logado
+    transacoes = Transacao.query.filter_by(usuario_id=current_user.id).all()
 
-    saldo_total = sum(t.valor if t.tipo =="Receita" else -t.valor for t in transacoes)
+    # Calcular saldo total, receitas e despesas
+    saldo_total = sum(t.valor if t.tipo == 'Receita ' else -t.valor for t in transacoes)
+    total_receitas = sum(t.valor for t in transacoes if t.tipo == 'Receita')
+    total_despesas = sum(-t.valor for t in transacoes if t.tipo == 'Despesa')
 
-    total_receitas = sum(t.valor for t in transacoes if t.tipo=="Receita")
-    total_despesas = sum(t.valor for t in transacoes if t.tipo=="Despesa")
-    return render_template('dashboard.html', 
-                           usuario = current_user, 
-                           transacoes=transacoes,
-                           saldo_total = saldo_total,
-                           total_despesas=total_despesas,
-                           total_receitas=total_receitas)
-
-
-@bp.route('/relatorios', endpoint = 'relatorios')
-@login_required
-def relatorios():
-    transacoes = Transacao.query.filter_by(usuario_id=current_user.id).order_by(Transacao.data.desc())
-    saldo_total = sum(t.valor if t.tipo == 'Receitas' else -t.valor for t in transacoes)
-
-    total_receitas = sum(t.valor for t in transacoes if t.tipo == "Receita")
-    total_despesas = sum(t.valor for t in transacoes if t.tipo =="Despesa")
-
+    #Gerar Graficos
+    grafico_despesas_mensais = gerar_grafico_despesas_mensais(current_user.id)
+    grafico_receitas_por_categoria = gerar_grafico_receitas_por_categoria(current_user.id)
+    
     return render_template(
-        'relatorios.html',
-        transacoes=transacoes,
+        'dashboard.html',
+        usuario=current_user,
         saldo_total=saldo_total,
-        total_receitas = total_receitas,
-        total_despesas = total_despesas
+        total_receitas=total_receitas,
+        total_despesas=total_despesas,
+        transacoes=transacoes,grafico_despesas_mensais=grafico_despesas_mensais,
+        grafico_receitas_por_categoria=grafico_receitas_por_categoria
     )
 
 @bp.route('/criar_categoria', methods=['POST'])
